@@ -1,0 +1,45 @@
+void setup()
+{
+  size(640, 360);
+  
+  background(0);
+}
+
+void draw()
+{
+  
+}
+
+public class TimeMaster
+{
+  int bpm;
+  float bar_length; //in millisek
+  int last_beat;
+  int beat_count;
+  int offset;
+  TimeMaster()
+  {
+    offset = 0;
+    bpm = 120;
+    bar_length = (60*100)/bpm;
+    beat_count = 0;
+    last_beat = 0;
+  }
+  
+  public void tick()
+  {
+    int time = millis() - offset;
+    if(beat_count*bar_length<=time)
+      beat_count++;
+  }
+  
+  public void startBeat()
+  {
+    offset = millis();
+  }
+  
+  public int GetBeatCount()
+  {
+    return beat_count;
+  }
+}

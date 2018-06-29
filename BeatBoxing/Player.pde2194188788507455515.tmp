@@ -1,0 +1,68 @@
+public class Player
+{
+  private int MAX_MANA = 10;
+  private int MAX_HEALTH = 10;
+  boolean tumbling;
+  int health;
+  
+  int mana;
+  Player()
+  {
+    mana = 0;
+    tumbling = false;
+    health = MAX_HEALTH;
+  }
+  
+  void addMana()
+  {
+    if(mana>MAX_MANA)
+      return;
+      
+    mana++;
+  }
+  
+  int getHealth()
+  {
+    return health;
+  }
+  
+  void looseHealth(int amount)
+  {
+    health-=amount;
+    
+    if(health<=0)
+    {
+      health = MAX_HEALTH;
+      mana = 0;
+      timeMaster.restart();
+    }
+  }
+  
+  boolean isManaMaxed()
+  {
+    return mana == MAX_MANA;
+  }
+  
+  void spendMana(int amount)
+  {
+    mana -= amount;
+    if(mana < 0)
+      mana = 0;
+  }
+  
+  void startTumbling()
+  {
+    tumbling = true;
+    spendMana(2);
+  }
+  
+  boolean isTumbling()
+  {
+    return tumbling;
+  }
+  
+  void endTumbling()
+  {
+    tumbling = false;
+  }
+}

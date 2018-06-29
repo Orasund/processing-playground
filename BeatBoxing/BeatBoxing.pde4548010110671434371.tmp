@@ -1,0 +1,163 @@
+import ddf.minim.*;
+
+Minim minim;
+AudioSample kick;
+AudioSample snare;
+AudioSample hihat;
+
+TimeMaster timeMaster;
+
+PFont mono;
+
+
+void setup()
+{
+  size(640, 360);
+  timeMaster = new TimeMaster(120);
+  timeMaster.startBeat();
+  
+  mono = createFont("Georgia", 32);
+  textFont(mono);
+  textSize(100);
+  
+  minim = new Minim(this);
+  kick = minim.loadSample( "Kick.wav",512);
+  snare = minim.loadSample( "Snare.wav",512);
+  hihat = minim.loadSample( "Hihat.wav",512);
+  background(0);
+}
+
+void draw()
+{
+  timeMaster.tick();
+  if(timeMaster.isOnBeat() && timeMaster.pressed==false)
+    if(timeMaster.bar_position%8 == 0)
+    {
+      background(color(255,0,0));
+    }
+    else if(timeMaster.bar_position%8 == 4)
+      background(color(0,0,255));
+    else
+      background(color(0,255,0));
+  else
+    background(0);
+  
+
+  String txt = "false";
+  fill(0);
+  if(timeMaster.awaiting_input)
+  {
+    fill(255);
+    txt = "true";
+  }
+  text(txt + " " + timeMaster.bar_position%8, width/2, height/2);
+}
+
+public class TimeMaster
+{
+  float tolerance;
+  int bar_size;
+  
+  int bpm;
+  int time;
+  float bar_length; //in millisek
+  int bar_position;
+  int last_beat;
+  int beat_count;
+  int offset;
+  boolean awaiting_input;
+  boolean pressed;
+  TimeMaster(int bpm_)
+  {
+    bar_size = 4*8;
+    tolerance = 250;//500;
+    
+    time = 0;
+    offset = 0;
+    bar_position = 0;
+    awaiting_input = false;
+    pressed = false;
+
+    bpm = bpm_;
+    bar_length = (60*1000)/bpm;
+    beat_count = 0;
+    last_beat = 0;
+  }
+  
+  public boolean isOnBeat()
+  {
+    return (abs(time-beat_count*bar_length) < tolerance);
+  }
+  
+  public void tick()
+  {
+    time = millis() - offset;
+    
+    if(awaiting_input && !isOnBeat())
+    {
+      awaiting_input = false;
+      
+     if(bar_position%8 == 1)
+     {
+       if(pressed == false)
+       {
+         hihat.trigger();
+         //kick.trigger();
+       }
+     }
+      else if(bar_position%8 == 5 && pressed)
+      {
+        if(pressed == false)
+        {
+          kick.trigger();
+        }
+        //snare.trigger();
+      }
+      else
+        hihat.trigger();
+    }
+
+    if(beat_count*bar_length<=time)
+    {
+      beat_count++;
+      bar_position=(bar_position+1)%bar_size;
+    }
+
+    else if(!awaiting_input && isOnBeat())
+    {
+      awaiting_input = true;
+      pressed = false;
+    }
+  }
+  
+  public void startBeat()
+  {
+    offset = millis();
+  }
+  
+  public int GetBeatCount()
+  {
+    return beat_count;
+  }
+}
+
+void keyPressed() {
+  if(key == 'w' || key == 'W')
+  {
+    if(timeMaster.bar_position%8 == 1)
+        kick.trigger();
+  }
+  else if(key == 'd' || key == 'D')
+  {
+  }
+  else if(key == 's' || key == 'S')
+  {
+    if(timeMaster.bar_position%8 == 5)
+      snare.trigger();
+  }
+  else if(key == 'a' || key == 'A')
+  {
+  }
+  
+  timeMaster.pressed = true;
+}
